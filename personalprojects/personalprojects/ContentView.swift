@@ -88,12 +88,12 @@ struct CosmicTabBar: View {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) { selectedTab = 2 }
         } label: {
             ZStack {
-                // Pulse ring
+                
                 Circle()
                     .fill(Color.appPrimary.opacity(qrPulse ? 0.18 : 0.04))
                     .frame(width: 72)
                 
-                // Rotating gradient ring
+                
                 Circle()
                     .stroke(
                         AngularGradient(colors: [.appPrimary, .cosmicCyan, .cosmicPink, .appPrimary],
@@ -104,7 +104,7 @@ struct CosmicTabBar: View {
                     .rotationEffect(.degrees(ringAngle))
                     .opacity(selectedTab == 2 ? 1 : 0.5)
                 
-                // Main circle
+                
                 Circle()
                     .fill(CG.button)
                     .frame(width: 56)
@@ -129,4 +129,42 @@ struct CosmicTabBar: View {
         .offset(y: -20)
         .frame(maxWidth: .infinity)
     }
+    
+    // MARK: Regular tab button
+    private func tabButton(_ i: Int) -> some View {
+        Button {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = i }
+        } label: {
+            VStack(spacing: 4) {
+                ZStack {
+                    if selectedTab == i {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.appPrimary.opacity(0.18))
+                            .frame(width: 38, height: 32)
+                            .cosmicGlow(color: .appPrimary, radius: 6)
+                    }
+                    Image(systemName: tabs[i].icon)
+                        .font(.system(size: 20, weight: selectedTab == i ? .semibold : .regular))
+                        .foregroundColor(selectedTab == i ? .appSecondary : Color(white: 0.42))
+                        .scaleEffect(selectedTab == i ? 1.1 : 1.0)
+                        .animation(.spring(response: 0.25, dampingFraction: 0.65), value: selectedTab)
+                }
+                Text(tabs[i].label)
+                    .font(.system(size: 9, weight: selectedTab == i ? .bold : .medium))
+                    .foregroundColor(selectedTab == i ? .appSecondary : Color(white: 0.38))
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(CosmicButtonStyle())
+        .accessibilityLabel(tabs[i].label)
+        .accessibilityAddTraits(selectedTab == i ? .isSelected : [])
+    }
 }
+
+#Preview {
+    ContentView()
+        .environmentObject(HomeViewModel())
+        .environmentObject(WalletViewModel())
+        .environmentObject(ProfileViewModel())
+}
+
