@@ -159,8 +159,93 @@ struct CosmicTabBar: View {
         .accessibilityLabel(tabs[i].label)
         .accessibilityAddTraits(selectedTab == i ? .isSelected : [])
     }
+    
+    // MARK: - QRScanView
+    
+    struct QRScanView: View {
+        @State private var isTorchOn      = false
+        @State private var showInput      = false
+        @State private var manualCode     = ""
+        @State private var scanRotation   = 0.0
+        @State private var cornerPulse    = false
+        
+        var body: some View {
+            ZStack {
+                Color.spaceBlack.ignoresSafeArea()
+                StarfieldView(starCount: 50)
+                
+                Color.black.opacity(0.78).ignoresSafeArea()
+                
+                // Scan frame
+                ZStack {
+                    // Outer glow
+                    RoundedRectangle(cornerRadius: 22)
+                        .stroke(Color.appPrimary.opacity(cornerPulse ? 0.55 : 0.15), lineWidth: 2)
+                        .frame(width: 270, height: 270)
+                        .blur(radius: 4)
+                    
+                    // Rotating border
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(AngularGradient(colors: [.appPrimary, .cosmicCyan, .cosmicPink, .appPrimary],
+                                                center: .center), lineWidth: 2.5)
+                        .frame(width: 262, height: 262)
+                        .rotationEffect(.degrees(scanRotation))
+                    
+                    // Corners
+                    scanCorners.frame(width: 262, height: 262)
+                    
+                    // Scan line
+                    CosmicScanLine().frame(width: 256, height: 256)
+                        .clipShape(RoundedRectangle(cornerRadius: 18))
+                }
+                
+                VStack {
+                    // Header
+                    LinearGradient(colors: [Color.spaceBlack, .clear], startPoint: .top, endPoint: .bottom)
+                        .frame(height: 140)
+                        .overlay(
+                            VStack(spacing: 4) {
+                                Text("Quét mã QR")
+                                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                Text("Vũ trụ rộng lớn, thanh toán nhanh chóng")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(Color(white: 0.55))
+                            }
+                                .padding(.top, 60)
+                        )
+                    
+                    Spacer()
+                    
+                    Text("Đưa mã QR vào khung để quét")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(.white.opacity(0.7))
+                        .padding(.bottom, 250)
+                    
+                    Spacer()
+                    
+                    HStack(spacing: 38) {
+                        scanCtrlBtn(icon: isTorchOn ? "flashlight.on.fill" : "flashlight.off.fill",
+                                    label: "Đèn pin", color: isTorchOn ? .cosmicGold : .appSecondary) {
+                            isTorchOn.toggle()
+                        }
+                        scanCtrlBtn(icon: "photo.fill",  label: "Thư viện", color: .cosmicCyan) {}
+                        scanCtrlBtn(icon: "keyboard",     label: "Nhập mã",  color: .appPrimary) { showInput = true }
+                    }
+                    Spacer(minLength: 110)
+                }
+            }
+            .sheet(isPresented: $showInput) {
+                ManualCodeSheet(code: $manualCode).presentationDetents([.medium])
+            }
+            .onAppear {
+                withAnimation(.linear(duration: 6).repeatForever(autoreverses: false)) { scanRotation = 360 }
+                withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) { cornerPulse = true }
+            }
+        }
+        
+    }
 }
-
 #Preview {
     ContentView()
         .environmentObject(HomeViewModel())
