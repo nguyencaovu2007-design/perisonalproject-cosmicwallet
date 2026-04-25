@@ -301,6 +301,39 @@ struct CosmicTabBar: View {
             }
         }
     }
+    
+    struct ManualCodeSheet: View {
+        @Binding var code: String
+        @Environment(\.dismiss) var dismiss
+        var body: some View {
+            ZStack {
+                Color.spaceDark.ignoresSafeArea()
+                StarfieldView(starCount: 25)
+                VStack(spacing: 24) {
+                    RoundedRectangle(cornerRadius: 3).fill(Color.appPrimary.opacity(0.5))
+                        .frame(width: 40, height: 4).padding(.top, 12)
+                    Text("✨ Nhập mã thủ công")
+                        .font(.system(size: 18, weight: .bold, design: .rounded)).foregroundColor(.white)
+                    TextField("Nhập mã thanh toán...", text: $code)
+                        .padding(16).background(Color.spaceCard)
+                        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.appPrimary.opacity(0.4), lineWidth: 1))
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .foregroundColor(.white).tint(.appPrimary).padding(.horizontal, 20)
+                    Button { dismiss() } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "checkmark.circle.fill")
+                            Text("Xác nhận").font(.system(size: 16, weight: .bold))
+                        }
+                        .foregroundColor(.white).frame(maxWidth: .infinity).padding(.vertical, 16)
+                        .background(RoundedRectangle(cornerRadius: 14).fill(CG.button))
+                        .padding(.horizontal, 20).appButtonShadow(color: .appPrimary)
+                    }
+                    .disabled(code.isEmpty).opacity(code.isEmpty ? 0.5 : 1).buttonStyle(CosmicButtonStyle())
+                    Spacer()
+                }
+            }
+        }
+    }
 }
 #Preview {
     ContentView()
