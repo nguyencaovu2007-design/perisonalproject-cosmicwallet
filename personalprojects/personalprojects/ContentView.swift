@@ -333,6 +333,72 @@ struct CosmicTabBar: View {
                 }
             }
         }
+        
+        struct PromotionView: View {
+            @State private var appeared = false
+            var body: some View {
+                ZStack {
+                    NebulaBackground()
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 0) {
+                            ZStack(alignment: .bottom) {
+                                CG.header.ignoresSafeArea(edges: .top)
+                                StarfieldView(starCount: 30).frame(height: 140).clipped()
+                                Circle().fill(RadialGradient(colors: [Color.cosmicPink.opacity(0.3), .clear],
+                                                             center: .center, startRadius: 0, endRadius: 80))
+                                    .frame(width: 160).offset(x: 120, y: -20)
+                                VStack(spacing: 6) {
+                                    Text("✨ ƯU ĐÃI VŨ TRỤ")
+                                        .font(.system(size: 22, weight: .black, design: .rounded))
+                                        .foregroundColor(.white)
+                                    Text("Siêu ưu đãi từ không gian sâu thẳm")
+                                        .font(.system(size: 13)).foregroundColor(Color(white: 0.60))
+                                }.padding(.bottom, 24)
+                            }.frame(height: 140)
+
+                            VStack(spacing: 12) {
+                                ForEach(Array(MoMoData.promotions.enumerated()), id: \.element.id) { i, promo in
+                                    CosmicPromoCard(promo: promo)
+                                        .offset(y: appeared ? 0 : 40).opacity(appeared ? 1 : 0)
+                                        .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(Double(i) * 0.08), value: appeared)
+                                }
+                            }
+                            .padding(AppSpacing.lg).offset(y: -10)
+                            Spacer(minLength: 110)
+                        }
+                    }
+                }
+                .ignoresSafeArea(edges: .top)
+                .onAppear { appeared = true }
+                .onDisappear { appeared = false }
+            }
+        }
+
+        struct CosmicPromoCard: View {
+            let promo: PromoItem
+            var body: some View {
+                Button { } label: {
+                    HStack(spacing: 14) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 14).fill(promo.color.opacity(0.15)).frame(width: 58, height: 58)
+                                .overlay(RoundedRectangle(cornerRadius: 14).stroke(promo.color.opacity(0.35), lineWidth: 1))
+                            Image(systemName: promo.icon).font(.system(size: 22, weight: .semibold)).foregroundColor(promo.color)
+                        }.cosmicGlow(color: promo.color, radius: 7)
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text(promo.title).font(.system(size: 16, weight: .bold)).foregroundColor(.white)
+                            Text(promo.subtitle).font(.system(size: 13)).foregroundColor(Color(white: 0.55)).lineLimit(2)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right").foregroundColor(Color(white: 0.35)).font(.system(size: 12, weight: .semibold))
+                    }
+                    .padding(AppSpacing.lg).background(Color.spaceCard)
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.md))
+                    .overlay(RoundedRectangle(cornerRadius: AppRadius.md).stroke(promo.color.opacity(0.25), lineWidth: 1))
+                    .appCardShadow()
+                }
+                .buttonStyle(CosmicButtonStyle())
+            }
+        }
     }
 }
 #Preview {
