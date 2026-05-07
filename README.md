@@ -1,136 +1,238 @@
 # Banking iOS Application 
 
-SwiftUI-based mobile banking application with a modern interface and a space-inspired design system 🪐.
+A modern SwiftUI banking application built with a custom space-inspired design system, animated UI components, and scalable MVVM architecture.
+
+The project focuses on crafting a premium mobile banking experience with immersive visuals, reusable components, and clean frontend engineering practices.
 
 ---
 
-## Overview
+## Overview 🌌
 
-This project simulates a real-world banking application while applying a **space / universe visual theme 🌌** to create a distinctive user experience.
+This application simulates a modern digital banking experience while applying a futuristic space-inspired visual identity.
 
-The current focus is on frontend development using SwiftUI, with all data handled through mock models. Backend integration is planned for future phases.
+The current development phase is focused on frontend architecture and UI engineering using SwiftUI. All banking data is currently powered by mock models and local JSON resources.
 
----
-
-## Features 🚀
-
-**Implemented**
-
-* Authentication interfaces (Login, Registration)
-* Dashboard (account overview, balance display)
-* Transaction list (mock data)
-* Reusable UI components
-* Navigation flow
-
-**In Progress**
-
-* Transaction detail screen
-* Profile and settings
-* UI refinement and animations
-
-**Planned**
-
-* Backend integration (API)
-* Authentication system
-* Persistent storage
-* Notifications and security
+Backend integration and production-level services are planned for future phases.
 
 ---
 
-## Technology Stack 🖥️
+# Features 🚀
 
-* Language: Swift
-* Framework: SwiftUI
-* Architecture: MVVM
-* State Management: ObservableObject, @State, @Binding
-* Data: Mock data (local models / JSON)
+## Completed
+- Authentication interfaces
+- Custom HomeView header
+- Dashboard overview screen
+- Animated cosmic background system
+- Balance card interface
+- Reusable SwiftUI components
+- MVVM architecture setup
+- Navigation structure
+- Responsive layout system
+- Custom color hierarchy and visual styling
+- Mock banking data integration
 
----
+## In Progress
+- Transaction detail screen
+- Profile & settings flow
+- Advanced SwiftUI animations
+- Component standardization
+- UI refinements and interaction polishing
 
-## Architecture 🔧
-
-The project follows the MVVM pattern:
-
-* Model — data structures (User, Account, Transaction)
-* View — SwiftUI UI components
-* ViewModel — business logic and state handling
-
-This structure ensures scalability and clean separation of concerns.
-
----
-
-## Design Direction
-
-The application adopts a **space-inspired interface**, focusing on:
-
-* Dark backgrounds with high contrast elements
-* Minimal and consistent components
-* Clear visual hierarchy and spacing
-
-The goal is to deliver a modern, immersive, and professional experience.
+## Planned
+- REST API integration
+- Real authentication system
+- Persistent local storage
+- Push notifications
+- Security enhancements
+- Biometric authentication
 
 ---
 
-## Project Status
+# Technology Stack 🖥️
 
-* Development Phase: UI Implementation
-* Backend: Not implemented
-* Data Source: Mock data
-
-The project is actively maintained.
-
----
-
-## Roadmap
-
-**Phase 1 — UI Development**
-
-* Complete all screens
-* Finalize design system
-* Standardize components
-
-**Phase 2 — Backend Integration**
-
-* Build API services
-* Implement authentication
-* Replace mock data
-
-**Phase 3 — Production**
-
-* Performance optimization
-* Security improvements
-* Deployment
+| Technology | Usage |
+|---|---|
+| Swift | Core programming language |
+| SwiftUI | UI framework |
+| MVVM | Application architecture |
+| ObservableObject | State management |
+| @State / @Binding | UI state handling |
+| Mock JSON Data | Development data source |
 
 ---
 
-## Screenshots
+# Technical Highlights ⚡
 
-Screenshots will be added as the UI is finalized.
+- Built entirely with SwiftUI
+- Custom animated UI system
+- Space-inspired visual design
+- Reusable component-first architecture
+- State-driven rendering
+- Scalable MVVM structure
+- Modern dark UI implementation
+- Smooth navigation transitions
+- Clean separation of concerns
 
 ---
 
-## Installation ⚙️
+# Design System 🌌
 
-```bash id="l6y7t2"
-git clone https://github.com/your-username/your-repository.git
-cd your-repository
+The application adopts a custom space-inspired visual language focused on creating an immersive yet professional banking experience.
+
+## Core Design Principles
+- Layered cosmic backgrounds
+- Gradient depth and glow effects
+- High contrast typography
+- Minimal component styling
+- Consistent spacing hierarchy
+- Smooth animations and transitions
+- Glassmorphism-inspired UI elements
+
+The design direction prioritizes clarity, scalability, and modern mobile interaction patterns.
+
+---
+
+# Architecture 🔧
+
+The project follows the MVVM (Model-View-ViewModel) architecture pattern.
+
+## Structure
+
+### Model
+Handles application data structures such as users, accounts, and transactions.
+
+### View
+Contains SwiftUI user interface components and screen layouts.
+
+### ViewModel
+Manages business logic, state handling, and communication between View and Model.
+
+This architecture improves scalability, maintainability, and clean code organization.
+
+---
+
+# Project Structure 📂
+
+```bash
+BankingApp/
+├── Models/
+├── Views/
+├── ViewModels/
+├── Components/
+├── Resources/
+├── Services/
+├── Utilities/
+└── Extensions/
+```
+
+---
+
+# Current UI Progress ✨
+
+Implemented interface sections:
+
+- Login screen
+- Registration screen
+- Home dashboard
+- Animated banking header
+- Balance overview card
+- Space background system
+- Reusable custom buttons
+- Navigation transitions
+- Responsive SwiftUI layouts
+
+The project is currently focused on polishing animations, interaction quality, and component consistency.
+
+---
+
+# Roadmap 🛣️
+
+## Phase 1 — Frontend Engineering
+- Complete all screens
+- Finalize design system
+- Improve reusable components
+- Refine animations and interactions
+
+## Phase 2 — Backend Integration
+- Build networking layer
+- Integrate REST APIs
+- Implement authentication
+- Replace mock data with real services
+
+## Phase 3 — Production Optimization
+- Performance optimization
+- Security improvements
+- Testing and debugging
+- Deployment preparation
+
+---
+
+# Preview 📸
+
+Screenshots and UI previews will be added as development progresses.
+
+Planned previews:
+- Authentication flow
+- Home dashboard
+- Animated header
+- Transaction screens
+- Component system
+
+---
+
+# Installation ⚙️
+
+```bash
+git clone https://github.com/karsirdev/vucaonguyeniosengineer.git
+cd vucaonguyeniosengineer
 open YourProject.xcodeproj
 ```
 
-**Requirements 📱**
+---
 
-* macOS
-* Xcode 15+
-* iOS 16+
+# Requirements 📱
+
+- macOS
+- Xcode 15+
+- iOS 16+
+- Swift 5.9+
 
 ---
 
-## Notes 📜
+# Project Status 📌
 
-This project is built for learning and portfolio purposes, demonstrating practical iOS development skills and readiness for real-world applications.
+| Category | Status |
+|---|---|
+| Frontend UI | Active Development |
+| Backend | Planned |
+| Database | Not Implemented |
+| API Integration | Planned |
+| Mock Data | Implemented |
+
+The project is actively maintained and continuously improved.
 
 ---
 
-## Contact 📖
+# Objective 🎯
 
-For feedback or discussion, please open an issue in this repository.
+This project is designed to simulate real-world iOS application architecture and frontend engineering practices using SwiftUI.
+
+Primary focus areas:
+- Scalable UI architecture
+- Reusable component systems
+- Production-oriented SwiftUI development
+- Modern mobile interaction design
+- Clean state management
+- Professional design implementation
+
+---
+
+# Notes 📜
+
+This project is part of an ongoing effort to strengthen practical iOS engineering skills through real-world architecture, scalable UI systems, and modern SwiftUI development practices.
+
+---
+
+# Contact 📖
+
+For feedback, suggestions, or discussion, please open an issue in the repository.
