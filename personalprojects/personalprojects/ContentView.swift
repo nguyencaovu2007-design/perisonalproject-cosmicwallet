@@ -1,6 +1,5 @@
 import SwiftUI
 
-
 struct ContentView: View {
     @State private var selectedTab = 0
 
@@ -40,8 +39,8 @@ struct ContentView: View {
 struct CosmicTabBar: View {
     @Binding var selectedTab: Int
     @State private var ringAngle: Double = 0
-    @State private var qrPulse  = false
-    
+    @State private var qrPulse = false
+
     private let tabs: [(icon: String, label: String)] = [
         ("house.fill",      "Trang chủ"),
         ("paperplane.fill", "Chuyển tiền"),
@@ -49,7 +48,7 @@ struct CosmicTabBar: View {
         ("sparkles",        "Ưu đãi"),
         ("person.fill",     "Tôi"),
     ]
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
             // Glass bar
@@ -63,7 +62,7 @@ struct CosmicTabBar: View {
                 .padding(.horizontal, 16)
                 .shadow(color: Color.appPrimary.opacity(0.25), radius: 20, x: 0, y: -4)
                 .shadow(color: .black.opacity(0.50), radius: 10, x: 0, y: 4)
-            
+
             HStack(spacing: 0) {
                 ForEach(0..<5) { i in
                     if i == 2 { qrButton } else { tabButton(i) }
@@ -80,20 +79,18 @@ struct CosmicTabBar: View {
             withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) { qrPulse = true }
         }
     }
-    
-    // MARK: QR centre button
-    
+
+    // MARK: QR Centre Button
+
     private var qrButton: some View {
         Button {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) { selectedTab = 2 }
         } label: {
             ZStack {
-                
                 Circle()
                     .fill(Color.appPrimary.opacity(qrPulse ? 0.18 : 0.04))
                     .frame(width: 72)
-                
-                
+
                 Circle()
                     .stroke(
                         AngularGradient(colors: [.appPrimary, .cosmicCyan, .cosmicPink, .appPrimary],
@@ -103,8 +100,7 @@ struct CosmicTabBar: View {
                     .frame(width: 64)
                     .rotationEffect(.degrees(ringAngle))
                     .opacity(selectedTab == 2 ? 1 : 0.5)
-                
-                
+
                 Circle()
                     .fill(CG.button)
                     .frame(width: 56)
@@ -116,7 +112,7 @@ struct CosmicTabBar: View {
                         )
                     )
                     .appButtonShadow(color: .appPrimary)
-                
+
                 Image(systemName: "qrcode.viewfinder")
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.white)
@@ -129,8 +125,9 @@ struct CosmicTabBar: View {
         .offset(y: -20)
         .frame(maxWidth: .infinity)
     }
-    
-    // MARK: Regular tab button
+
+    // MARK: Regular Tab Button
+
     private func tabButton(_ i: Int) -> some View {
         Button {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = i }
@@ -159,252 +156,292 @@ struct CosmicTabBar: View {
         .accessibilityLabel(tabs[i].label)
         .accessibilityAddTraits(selectedTab == i ? .isSelected : [])
     }
-    
-    // MARK: - QRScanView
-    
-    struct QRScanView: View {
-        @State private var isTorchOn      = false
-        @State private var showInput      = false
-        @State private var manualCode     = ""
-        @State private var scanRotation   = 0.0
-        @State private var cornerPulse    = false
-        
-        var body: some View {
+}
+
+// MARK: - QRScanView  (FIX: tách ra top-level, không nằm trong CosmicTabBar)
+
+struct QRScanView: View {
+    @State private var isTorchOn    = false
+    @State private var showInput    = false
+    @State private var manualCode   = ""
+    @State private var scanRotation = 0.0
+    @State private var cornerPulse  = false
+
+    var body: some View {
+        ZStack {
+            Color.spaceBlack.ignoresSafeArea()
+            StarfieldView(starCount: 50)
+            Color.black.opacity(0.78).ignoresSafeArea()
+
+            // Scan frame
             ZStack {
-                Color.spaceBlack.ignoresSafeArea()
-                StarfieldView(starCount: 50)
-                
-                Color.black.opacity(0.78).ignoresSafeArea()
-                
-                // Scan frame
-                ZStack {
-                    // Outer glow
-                    RoundedRectangle(cornerRadius: 22)
-                        .stroke(Color.appPrimary.opacity(cornerPulse ? 0.55 : 0.15), lineWidth: 2)
-                        .frame(width: 270, height: 270)
-                        .blur(radius: 4)
-                    
-                    // Rotating border
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(AngularGradient(colors: [.appPrimary, .cosmicCyan, .cosmicPink, .appPrimary],
-                                                center: .center), lineWidth: 2.5)
-                        .frame(width: 262, height: 262)
-                        .rotationEffect(.degrees(scanRotation))
-                    
-                    // Corners
-                    scanCorners.frame(width: 262, height: 262)
-                    
-                    // Scan line
-                    CosmicScanLine().frame(width: 256, height: 256)
-                        .clipShape(RoundedRectangle(cornerRadius: 18))
-                }
-                
-                VStack {
-                    // Header
-                    LinearGradient(colors: [Color.spaceBlack, .clear], startPoint: .top, endPoint: .bottom)
-                        .frame(height: 140)
-                        .overlay(
-                            VStack(spacing: 4) {
-                                Text("Quét mã QR")
-                                    .font(.system(size: 20, weight: .bold, design: .rounded))
-                                    .foregroundColor(.white)
-                                Text("Vũ trụ rộng lớn, thanh toán nhanh chóng")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(Color(white: 0.55))
-                            }
-                                .padding(.top, 60)
-                        )
-                    
-                    Spacer()
-                    
-                    Text("Đưa mã QR vào khung để quét")
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundColor(.white.opacity(0.7))
-                        .padding(.bottom, 250)
-                    
-                    Spacer()
-                    
-                    HStack(spacing: 38) {
-                        scanCtrlBtn(icon: isTorchOn ? "flashlight.on.fill" : "flashlight.off.fill",
-                                    label: "Đèn pin", color: isTorchOn ? .cosmicGold : .appSecondary) {
-                            isTorchOn.toggle()
-                        }
-                        scanCtrlBtn(icon: "photo.fill",  label: "Thư viện", color: .cosmicCyan) {}
-                        scanCtrlBtn(icon: "keyboard",     label: "Nhập mã",  color: .appPrimary) { showInput = true }
-                    }
-                    Spacer(minLength: 110)
-                }
+                RoundedRectangle(cornerRadius: 22)
+                    .stroke(Color.appPrimary.opacity(cornerPulse ? 0.55 : 0.15), lineWidth: 2)
+                    .frame(width: 270, height: 270)
+                    .blur(radius: 4)
+
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(AngularGradient(colors: [.appPrimary, .cosmicCyan, .cosmicPink, .appPrimary],
+                                            center: .center), lineWidth: 2.5)
+                    .frame(width: 262, height: 262)
+                    .rotationEffect(.degrees(scanRotation))
+
+                scanCorners.frame(width: 262, height: 262)
+
+                CosmicScanLine()
+                    .frame(width: 256, height: 256)
+                    .clipShape(RoundedRectangle(cornerRadius: 18))
             }
-            .sheet(isPresented: $showInput) {
-                ManualCodeSheet(code: $manualCode).presentationDetents([.medium])
+
+            VStack {
+                LinearGradient(colors: [Color.spaceBlack, .clear], startPoint: .top, endPoint: .bottom)
+                    .frame(height: 140)
+                    .overlay(
+                        VStack(spacing: 4) {
+                            Text("Quét mã QR")
+                                .font(.system(size: 20, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                            Text("Vũ trụ rộng lớn, thanh toán nhanh chóng")
+                                .font(.system(size: 12))
+                                .foregroundColor(Color(white: 0.55))
+                        }
+                        .padding(.top, 60)
+                    )
+
+                Spacer()
+                Text("Đưa mã QR vào khung để quét")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(.white.opacity(0.7))
+                    .padding(.bottom, 250)
+                Spacer()
+
+                HStack(spacing: 38) {
+                    scanCtrlBtn(icon: isTorchOn ? "flashlight.on.fill" : "flashlight.off.fill",
+                                label: "Đèn pin",
+                                color: isTorchOn ? .cosmicGold : .appSecondary) { isTorchOn.toggle() }
+                    scanCtrlBtn(icon: "photo.fill",  label: "Thư viện", color: .cosmicCyan) {}
+                    scanCtrlBtn(icon: "keyboard",    label: "Nhập mã",  color: .appPrimary) { showInput = true }
+                }
+                Spacer(minLength: 110)
+            }
+        }
+        .sheet(isPresented: $showInput) {
+            ManualCodeSheet(code: $manualCode).presentationDetents([.medium])
+        }
+        .onAppear {
+            withAnimation(.linear(duration: 6).repeatForever(autoreverses: false)) { scanRotation = 360 }
+            withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) { cornerPulse = true }
+        }
+    }
+
+    private var scanCorners: some View {
+        GeometryReader { g in
+            let w = g.size.width, h = g.size.height
+            let len: CGFloat = 30, t: CGFloat = 4, r: CGFloat = 20
+            ZStack {
+                Path { p in
+                    p.move(to: .init(x: 0, y: r + len)); p.addLine(to: .init(x: 0, y: r))
+                    p.addArc(center: .init(x: r, y: r), radius: r,
+                             startAngle: .degrees(180), endAngle: .degrees(270), clockwise: false)
+                    p.addLine(to: .init(x: r + len, y: 0))
+                }.stroke(Color.appSecondary, lineWidth: t)
+
+                Path { p in
+                    p.move(to: .init(x: w - r - len, y: 0)); p.addLine(to: .init(x: w - r, y: 0))
+                    p.addArc(center: .init(x: w - r, y: r), radius: r,
+                             startAngle: .degrees(270), endAngle: .degrees(0), clockwise: false)
+                    p.addLine(to: .init(x: w, y: r + len))
+                }.stroke(Color.cosmicCyan, lineWidth: t)
+
+                Path { p in
+                    p.move(to: .init(x: 0, y: h - r - len)); p.addLine(to: .init(x: 0, y: h - r))
+                    p.addArc(center: .init(x: r, y: h - r), radius: r,
+                             startAngle: .degrees(180), endAngle: .degrees(90), clockwise: true)
+                    p.addLine(to: .init(x: r + len, y: h))
+                }.stroke(Color.cosmicPink, lineWidth: t)
+
+                Path { p in
+                    p.move(to: .init(x: w - r - len, y: h)); p.addLine(to: .init(x: w - r, y: h))
+                    p.addArc(center: .init(x: w - r, y: h - r), radius: r,
+                             startAngle: .degrees(90), endAngle: .degrees(0), clockwise: true)
+                    p.addLine(to: .init(x: w, y: h - r - len))
+                }.stroke(Color.appPrimary, lineWidth: t)
+            }
+        }
+    }
+
+    private func scanCtrlBtn(icon: String, label: String, color: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                ZStack {
+                    Circle().fill(color.opacity(0.15)).frame(width: 60, height: 60)
+                        .overlay(Circle().stroke(color.opacity(0.3), lineWidth: 1))
+                    Image(systemName: icon).font(.system(size: 22)).foregroundColor(color)
+                }
+                .cosmicGlow(color: color, radius: 6)
+                Text(label).font(.system(size: 12, weight: .medium)).foregroundColor(Color(white: 0.7))
+            }
+        }
+        .buttonStyle(CosmicButtonStyle())
+    }
+}
+
+// MARK: - CosmicScanLine  (FIX: tách ra top-level)
+
+struct CosmicScanLine: View {
+    @State private var offset: CGFloat = 0
+
+    var body: some View {
+        GeometryReader { g in
+            ZStack {
+                Rectangle()
+                    .fill(LinearGradient(colors: [.clear, .appPrimary.opacity(0.9), .cosmicCyan.opacity(0.7), .clear],
+                                         startPoint: .leading, endPoint: .trailing))
+                    .frame(height: 2).offset(y: offset).blur(radius: 1)
+
+                Rectangle()
+                    .fill(Color.appPrimary.opacity(0.25))
+                    .frame(height: 8).offset(y: offset).blur(radius: 4)
             }
             .onAppear {
-                withAnimation(.linear(duration: 6).repeatForever(autoreverses: false)) { scanRotation = 360 }
-                withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) { cornerPulse = true }
-            }
-        }
-        
-        private var scanCorners: some View {
-            GeometryReader { g in
-                let w = g.size.width, h = g.size.height, len: CGFloat = 30, t: CGFloat = 4, r: CGFloat = 20
-                ZStack {
-                    Path { p in p.move(to: .init(x: 0, y: r+len)); p.addLine(to: .init(x: 0, y: r))
-                        p.addArc(center: .init(x: r, y: r), radius: r, startAngle: .degrees(180), endAngle: .degrees(270), clockwise: false)
-                        p.addLine(to: .init(x: r+len, y: 0)) }.stroke(Color.appSecondary, lineWidth: t)
-                    Path { p in p.move(to: .init(x: w-r-len, y: 0)); p.addLine(to: .init(x: w-r, y: 0))
-                        p.addArc(center: .init(x: w-r, y: r), radius: r, startAngle: .degrees(270), endAngle: .degrees(0), clockwise: false)
-                        p.addLine(to: .init(x: w, y: r+len)) }.stroke(Color.cosmicCyan, lineWidth: t)
-                    Path { p in p.move(to: .init(x: 0, y: h-r-len)); p.addLine(to: .init(x: 0, y: h-r))
-                        p.addArc(center: .init(x: r, y: h-r), radius: r, startAngle: .degrees(180), endAngle: .degrees(90), clockwise: true)
-                        p.addLine(to: .init(x: r+len, y: h)) }.stroke(Color.cosmicPink, lineWidth: t)
-                    Path { p in p.move(to: .init(x: w-r-len, y: h)); p.addLine(to: .init(x: w-r, y: h))
-                        p.addArc(center: .init(x: w-r, y: h-r), radius: r, startAngle: .degrees(90), endAngle: .degrees(0), clockwise: true)
-                        p.addLine(to: .init(x: w, y: h-r-len)) }.stroke(Color.appPrimary, lineWidth: t)
+                withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
+                    offset = g.size.height - 2
                 }
-            }
-        }
-        
-        private func scanCtrlBtn(icon: String, label: String, color: Color, action: @escaping () -> Void) -> some View {
-            Button(action: action) {
-                VStack(spacing: 8) {
-                    ZStack {
-                        Circle().fill(color.opacity(0.15)).frame(width: 60, height: 60)
-                            .overlay(Circle().stroke(color.opacity(0.3), lineWidth: 1))
-                        Image(systemName: icon).font(.system(size: 22)).foregroundColor(color)
-                    }
-                    .cosmicGlow(color: color, radius: 6)
-                    Text(label).font(.system(size: 12, weight: .medium)).foregroundColor(Color(white: 0.7))
-                }
-            }
-            .buttonStyle(CosmicButtonStyle())
-        }
-    }
-
-    struct CosmicScanLine: View {
-        @State private var offset: CGFloat = 0
-        var body: some View {
-            GeometryReader { g in
-                ZStack {
-                    Rectangle()
-                        .fill(LinearGradient(colors: [.clear, .appPrimary.opacity(0.9), .cosmicCyan.opacity(0.7), .clear],
-                                             startPoint: .leading, endPoint: .trailing))
-                        .frame(height: 2).offset(y: offset).blur(radius: 1)
-                    Rectangle()
-                        .fill(Color.appPrimary.opacity(0.25))
-                        .frame(height: 8).offset(y: offset).blur(radius: 4)
-                }
-                .onAppear {
-                    withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
-                        offset = g.size.height - 2
-                    }
-                }
-            }
-        }
-    }
-    
-    struct ManualCodeSheet: View {
-        @Binding var code: String
-        @Environment(\.dismiss) var dismiss
-        var body: some View {
-            ZStack {
-                Color.spaceDark.ignoresSafeArea()
-                StarfieldView(starCount: 25)
-                VStack(spacing: 24) {
-                    RoundedRectangle(cornerRadius: 3).fill(Color.appPrimary.opacity(0.5))
-                        .frame(width: 40, height: 4).padding(.top, 12)
-                    Text("✨ Nhập mã thủ công")
-                        .font(.system(size: 18, weight: .bold, design: .rounded)).foregroundColor(.white)
-                    TextField("Nhập mã thanh toán...", text: $code)
-                        .padding(16).background(Color.spaceCard)
-                        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.appPrimary.opacity(0.4), lineWidth: 1))
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
-                        .foregroundColor(.white).tint(.appPrimary).padding(.horizontal, 20)
-                    Button { dismiss() } label: {
-                        HStack(spacing: 8) {
-                            Image(systemName: "checkmark.circle.fill")
-                            Text("Xác nhận").font(.system(size: 16, weight: .bold))
-                        }
-                        .foregroundColor(.white).frame(maxWidth: .infinity).padding(.vertical, 16)
-                        .background(RoundedRectangle(cornerRadius: 14).fill(CG.button))
-                        .padding(.horizontal, 20).appButtonShadow(color: .appPrimary)
-                    }
-                    .disabled(code.isEmpty).opacity(code.isEmpty ? 0.5 : 1).buttonStyle(CosmicButtonStyle())
-                    Spacer()
-                }
-            }
-        }
-        
-        struct PromotionView: View {
-            @State private var appeared = false
-            var body: some View {
-                ZStack {
-                    NebulaBackground()
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: 0) {
-                            ZStack(alignment: .bottom) {
-                                CG.header.ignoresSafeArea(edges: .top)
-                                StarfieldView(starCount: 30).frame(height: 140).clipped()
-                                Circle().fill(RadialGradient(colors: [Color.cosmicPink.opacity(0.3), .clear],
-                                                             center: .center, startRadius: 0, endRadius: 80))
-                                    .frame(width: 160).offset(x: 120, y: -20)
-                                VStack(spacing: 6) {
-                                    Text("✨ ƯU ĐÃI VŨ TRỤ")
-                                        .font(.system(size: 22, weight: .black, design: .rounded))
-                                        .foregroundColor(.white)
-                                    Text("Siêu ưu đãi từ không gian sâu thẳm")
-                                        .font(.system(size: 13)).foregroundColor(Color(white: 0.60))
-                                }.padding(.bottom, 24)
-                            }.frame(height: 140)
-
-                            VStack(spacing: 12) {
-                                ForEach(Array(MoMoData.promotions.enumerated()), id: \.element.id) { i, promo in
-                                    CosmicPromoCard(promo: promo)
-                                        .offset(y: appeared ? 0 : 40).opacity(appeared ? 1 : 0)
-                                        .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(Double(i) * 0.08), value: appeared)
-                                }
-                            }
-                            .padding(AppSpacing.lg).offset(y: -10)
-                            Spacer(minLength: 110)
-                        }
-                    }
-                }
-                .ignoresSafeArea(edges: .top)
-                .onAppear { appeared = true }
-                .onDisappear { appeared = false }
-            }
-        }
-
-        struct CosmicPromoCard: View {
-            let promo: PromoItem
-            var body: some View {
-                Button { } label: {
-                    HStack(spacing: 14) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 14).fill(promo.color.opacity(0.15)).frame(width: 58, height: 58)
-                                .overlay(RoundedRectangle(cornerRadius: 14).stroke(promo.color.opacity(0.35), lineWidth: 1))
-                            Image(systemName: promo.icon).font(.system(size: 22, weight: .semibold)).foregroundColor(promo.color)
-                        }.cosmicGlow(color: promo.color, radius: 7)
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text(promo.title).font(.system(size: 16, weight: .bold)).foregroundColor(.white)
-                            Text(promo.subtitle).font(.system(size: 13)).foregroundColor(Color(white: 0.55)).lineLimit(2)
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.right").foregroundColor(Color(white: 0.35)).font(.system(size: 12, weight: .semibold))
-                    }
-                    .padding(AppSpacing.lg).background(Color.spaceCard)
-                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.md))
-                    .overlay(RoundedRectangle(cornerRadius: AppRadius.md).stroke(promo.color.opacity(0.25), lineWidth: 1))
-                    .appCardShadow()
-                }
-                .buttonStyle(CosmicButtonStyle())
             }
         }
     }
 }
+
+// MARK: - ManualCodeSheet  (FIX: tách ra top-level)
+
+struct ManualCodeSheet: View {
+    @Binding var code: String
+    @Environment(\.dismiss) var dismiss
+
+    var body: some View {
+        ZStack {
+            Color.spaceDark.ignoresSafeArea()
+            StarfieldView(starCount: 25)
+            VStack(spacing: 24) {
+                RoundedRectangle(cornerRadius: 3).fill(Color.appPrimary.opacity(0.5))
+                    .frame(width: 40, height: 4).padding(.top, 12)
+
+                Text("✨ Nhập mã thủ công")
+                    .font(.system(size: 18, weight: .bold, design: .rounded)).foregroundColor(.white)
+
+                TextField("Nhập mã thanh toán...", text: $code)
+                    .padding(16)
+                    .background(Color.spaceCard)
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.appPrimary.opacity(0.4), lineWidth: 1))
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .foregroundColor(.white).tint(.appPrimary)
+                    .padding(.horizontal, 20)
+
+                Button { dismiss() } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "checkmark.circle.fill")
+                        Text("Xác nhận").font(.system(size: 16, weight: .bold))
+                    }
+                    .foregroundColor(.white).frame(maxWidth: .infinity).padding(.vertical, 16)
+                    .background(RoundedRectangle(cornerRadius: 14).fill(CG.button))
+                    .padding(.horizontal, 20)
+                    .appButtonShadow(color: .appPrimary)
+                }
+                .disabled(code.isEmpty).opacity(code.isEmpty ? 0.5 : 1)
+                .buttonStyle(CosmicButtonStyle())
+
+                Spacer()
+            }
+        }
+    }
+}
+
+// MARK: - PromotionView  (FIX: tách ra top-level)
+
+struct PromotionView: View {
+    @State private var appeared = false
+
+    var body: some View {
+        ZStack {
+            NebulaBackground()
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 0) {
+                    // Header
+                    ZStack(alignment: .bottom) {
+                        CG.header.ignoresSafeArea(edges: .top)
+                        StarfieldView(starCount: 30).frame(height: 140).clipped()
+                        Circle()
+                            .fill(RadialGradient(colors: [Color.cosmicPink.opacity(0.3), .clear],
+                                                 center: .center, startRadius: 0, endRadius: 80))
+                            .frame(width: 160).offset(x: 120, y: -20)
+                        VStack(spacing: 6) {
+                            Text("✨ ƯU ĐÃI VŨ TRỤ")
+                                .font(.system(size: 22, weight: .black, design: .rounded))
+                                .foregroundColor(.white)
+                            Text("Siêu ưu đãi từ không gian sâu thẳm")
+                                .font(.system(size: 13)).foregroundColor(Color(white: 0.60))
+                        }.padding(.bottom, 24)
+                    }.frame(height: 140)
+
+                    VStack(spacing: 12) {
+                        ForEach(Array(MoMoData.promotions.enumerated()), id: \.element.id) { i, promo in
+                            CosmicPromoCard(promo: promo)
+                                .offset(y: appeared ? 0 : 40)
+                                .opacity(appeared ? 1 : 0)
+                                .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(Double(i) * 0.08), value: appeared)
+                        }
+                    }
+                    .padding(AppSpacing.lg)
+                    .offset(y: -10)
+
+                    Spacer(minLength: 110)
+                }
+            }
+        }
+        .ignoresSafeArea(edges: .top)
+        .onAppear  { appeared = true }
+        .onDisappear { appeared = false }
+    }
+}
+
+// MARK: - CosmicPromoCard  (FIX: tách ra top-level)
+
+struct CosmicPromoCard: View {
+    let promo: PromoItem
+
+    var body: some View {
+        Button { } label: {
+            HStack(spacing: 14) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(promo.color.opacity(0.15))
+                        .frame(width: 58, height: 58)
+                        .overlay(RoundedRectangle(cornerRadius: 14).stroke(promo.color.opacity(0.35), lineWidth: 1))
+                    Image(systemName: promo.icon)
+                        .font(.system(size: 22, weight: .semibold)).foregroundColor(promo.color)
+                }.cosmicGlow(color: promo.color, radius: 7)
+
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(promo.title).font(.system(size: 16, weight: .bold)).foregroundColor(.white)
+                    Text(promo.subtitle).font(.system(size: 13)).foregroundColor(Color(white: 0.55)).lineLimit(2)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(Color(white: 0.35)).font(.system(size: 12, weight: .semibold))
+            }
+            .padding(AppSpacing.lg)
+            .background(Color.spaceCard)
+            .clipShape(RoundedRectangle(cornerRadius: AppRadius.md))
+            .overlay(RoundedRectangle(cornerRadius: AppRadius.md).stroke(promo.color.opacity(0.25), lineWidth: 1))
+            .appCardShadow()
+        }
+        .buttonStyle(CosmicButtonStyle())
+    }
+}
+
 #Preview {
     ContentView()
         .environmentObject(HomeViewModel())
         .environmentObject(WalletViewModel())
         .environmentObject(ProfileViewModel())
 }
-

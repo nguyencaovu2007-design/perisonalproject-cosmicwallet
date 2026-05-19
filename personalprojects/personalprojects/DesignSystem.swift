@@ -1,3 +1,8 @@
+import SwiftUI
+import Combine
+
+// MARK: - Colors
+
 extension Color {
     static let appPrimary    = Color(red: 0.58, green: 0.27, blue: 1.00)
     static let appSecondary  = Color(red: 0.75, green: 0.45, blue: 1.00)
@@ -15,7 +20,7 @@ extension Color {
     static let appIndigo     = Color(red: 0.40, green: 0.30, blue: 1.00)
 }
 
-// MARK: - Gradients  (computed — avoids Swift stored-property restriction)
+// MARK: - Gradients
 
 enum CG {
     static var button: LinearGradient {
@@ -61,7 +66,7 @@ enum AppRadius {
     static let pill: CGFloat = 999
 }
 
-// MARK: - View helpers
+// MARK: - View Helpers
 
 extension View {
     func appCardShadow() -> some View {
@@ -155,21 +160,30 @@ struct NebulaBackground: View {
     }
 }
 
-// MARK: - Currency
+// MARK: - Currency Formatters
 
 extension Double {
+    /// Hiển thị số tuyệt đối kèm " đ" — dùng khi isCredit/debit đã xử lý dấu bên ngoài
     var vndFormatted: String {
         let f = NumberFormatter()
         f.numberStyle = .decimal
         f.groupingSeparator = "."
-        return (f.string(from: NSNumber(value: Int(Swift.abs(self)))) ?? "\(Int(Swift.abs(self)))") + " đ"
+        let absValue = Swift.abs(self)
+        return (f.string(from: NSNumber(value: Int(absValue))) ?? "\(Int(absValue))") + " đ"
     }
+
     var vndCompact: String {
         let a = Swift.abs(self)
         if a >= 1_000_000_000 { return String(format: "%.1fT đ", a / 1_000_000_000) }
         if a >= 1_000_000     { return String(format: "%.1fM đ", a / 1_000_000) }
         if a >= 1_000         { return String(format: "%.0fK đ", a / 1_000) }
         return vndFormatted
+    }
+
+    /// Format có dấu: "+100.000 đ" hay "-100.000 đ"
+    var vndSigned: String {
+        let prefix = self >= 0 ? "+" : "-"
+        return prefix + vndFormatted
     }
 }
 
@@ -178,6 +192,7 @@ extension Double {
 struct Transaction: Identifiable {
     let id = UUID()
     let title, subtitle: String
+    /// Luôn lưu giá trị dương. Dấu sẽ hiển thị dựa vào isCredit.
     let amount: Double
     let isCredit: Bool
     let icon: String
@@ -216,13 +231,13 @@ struct MenuRow: Identifiable {
 
 struct MoMoData {
     static let transactions: [Transaction] = [
-        .init(title: "Nạp tiền điện thoại",   subtitle: "Viettel • 0987 654 321", amount: -100_000, isCredit: false, icon: "iphone.radiowaves.left.and.right", iconColor: .appPrimary, date: "Hôm nay, 14:32"),
-        .init(title: "Nhận tiền từ Minh Tuấn", subtitle: "Chuyển khoản",           amount:  500_000, isCredit: true,  icon: "arrow.down.left.circle.fill",     iconColor: .appGreen,   date: "Hôm nay, 11:15"),
-        .init(title: "Thanh toán điện",         subtitle: "EVN TP.HCM",             amount: -215_000, isCredit: false, icon: "bolt.circle.fill",                iconColor: .appOrange,  date: "Hôm qua, 09:00"),
-        .init(title: "Mua vé phim",             subtitle: "CGV Vincom",             amount: -160_000, isCredit: false, icon: "film.circle.fill",                iconColor: .cosmicPink, date: "Hôm qua, 20:45"),
-        .init(title: "Hoàn tiền Ví",            subtitle: "Ưu đãi hoàn tiền",       amount:   15_000, isCredit: true,  icon: "sparkles",                        iconColor: .cosmicGold, date: "23/06, 00:01"),
-        .init(title: "Grab - Đặt xe",           subtitle: "Grab Vietnam",           amount:  -45_000, isCredit: false, icon: "car.fill",                        iconColor: .appGreen,   date: "22/06, 18:22"),
-        .init(title: "Chuyển tiền cho Lan",     subtitle: "Chuyển khoản",           amount: -200_000, isCredit: false, icon: "arrow.up.right.circle.fill",      iconColor: .appRed,     date: "22/06, 12:00"),
+        .init(title: "Nạp tiền điện thoại",   subtitle: "Viettel • 0987 654 321", amount: 100_000,  isCredit: false, icon: "iphone.radiowaves.left.and.right", iconColor: .appPrimary, date: "Hôm nay, 14:32"),
+        .init(title: "Nhận tiền từ Minh Tuấn", subtitle: "Chuyển khoản",           amount: 500_000,  isCredit: true,  icon: "arrow.down.left.circle.fill",     iconColor: .appGreen,   date: "Hôm nay, 11:15"),
+        .init(title: "Thanh toán điện",         subtitle: "EVN TP.HCM",             amount: 215_000,  isCredit: false, icon: "bolt.circle.fill",                iconColor: .appOrange,  date: "Hôm qua, 09:00"),
+        .init(title: "Mua vé phim",             subtitle: "CGV Vincom",             amount: 160_000,  isCredit: false, icon: "film.circle.fill",                iconColor: .cosmicPink, date: "Hôm qua, 20:45"),
+        .init(title: "Hoàn tiền Ví",            subtitle: "Ưu đãi hoàn tiền",       amount: 15_000,   isCredit: true,  icon: "sparkles",                        iconColor: .cosmicGold, date: "23/06, 00:01"),
+        .init(title: "Grab - Đặt xe",           subtitle: "Grab Vietnam",           amount: 45_000,   isCredit: false, icon: "car.fill",                        iconColor: .appGreen,   date: "22/06, 18:22"),
+        .init(title: "Chuyển tiền cho Lan",     subtitle: "Chuyển khoản",           amount: 200_000,  isCredit: false, icon: "arrow.up.right.circle.fill",      iconColor: .appRed,     date: "22/06, 12:00"),
     ]
 
     static let services: [ServiceItem] = [
@@ -258,25 +273,30 @@ struct MoMoData {
 }
 
 // MARK: - ViewModels
-import SwiftUI
-import Combine
 
 @MainActor
 class HomeViewModel: ObservableObject {
-    @Published var balance: Double  = 555_555_555
-    @Published var isBalanceHidden  = false
-    @Published var transactions     = MoMoData.transactions
-    @Published var services         = MoMoData.services
-    @Published var isRefreshing     = false
-    @Published var userName         = "Vũ Cao Nguyên"
-    @Published var hasNotification  = true
+    @Published var balance: Double        = 555_555_555
+    @Published var isBalanceHidden        = false
+    @Published var transactions           = MoMoData.transactions
+    @Published var services               = MoMoData.services
+    @Published var isRefreshing           = false
+    @Published var userName               = "Vũ Cao Nguyên"
+    @Published var hasNotification        = true
 
-    var displayBalance: String { isBalanceHidden ? "••••••••" : balance.vndFormatted }
-    var initials: String {
-        let p = userName.split(separator: " ")
-        return "\(p.first?.prefix(1) ?? "")\(p.last?.prefix(1) ?? "")"
+    var displayBalance: String {
+        isBalanceHidden ? "••••••••" : balance.vndFormatted
     }
-    func toggleBalance() { withAnimation(.spring(response: 0.3)) { isBalanceHidden.toggle() } }
+
+    var initials: String {
+        let parts = userName.split(separator: " ")
+        return "\(parts.first?.prefix(1) ?? "")\(parts.last?.prefix(1) ?? "")"
+    }
+
+    func toggleBalance() {
+        withAnimation(.spring(response: 0.3)) { isBalanceHidden.toggle() }
+    }
+
     func refresh() async {
         isRefreshing = true
         try? await Task.sleep(nanoseconds: 1_000_000_000)
@@ -287,20 +307,22 @@ class HomeViewModel: ObservableObject {
 @MainActor
 class WalletViewModel: ObservableObject {
     struct ContactItem: Identifiable, Equatable {
-        let id = UUID()
+        let id        = UUID()
         let name, initials, phone: String
         let color: Color
         static func == (lhs: Self, rhs: Self) -> Bool { lhs.id == rhs.id }
     }
 
-    @Published var rawAmount      = ""
-    @Published var recipientPhone = ""
+    @Published var rawAmount        = ""
+    @Published var recipientPhone   = ""
+    @Published var resolvedName: String? = nil   // FIX: tên người nhận từ lookup, không hardcode
     @Published var selectedContact: ContactItem? = nil
     @Published var showConfirmation = false
-    @Published var note           = ""
+    @Published var note             = ""
     @Published var selectedBank: BankItem? = nil
 
     let quickAmounts: [Double] = [50_000, 100_000, 200_000, 500_000, 1_000_000, 2_000_000]
+
     let recentContacts: [ContactItem] = [
         .init(name: "Minh Tuấn", initials: "MT", phone: "0912 345 678", color: .appPrimary),
         .init(name: "Thùy Lan",  initials: "TL", phone: "0987 654 321", color: .cosmicPink),
@@ -309,16 +331,40 @@ class WalletViewModel: ObservableObject {
     ]
 
     var amountValue: Double? { Double(rawAmount) }
-    var canProceed:  Bool    { !recipientPhone.isEmpty && (amountValue ?? 0) > 0 }
+    var canProceed: Bool     { !recipientPhone.isEmpty && (amountValue ?? 0) > 0 }
 
-    func selectQuick(_ a: Double)       { rawAmount = "\(Int(a))" }
-    func isSelected(_ a: Double) -> Bool { amountValue == a }
-    func selectContact(_ c: ContactItem) { selectedContact = c; recipientPhone = c.phone }
-    func clearPhone()                    { recipientPhone = ""; selectedContact = nil }
+    func selectQuick(_ a: Double)          { rawAmount = "\(Int(a))" }
+    func isSelected(_ a: Double) -> Bool   { amountValue == a }
+
+    func selectContact(_ c: ContactItem) {
+        selectedContact = c
+        recipientPhone  = c.phone
+        resolvedName    = c.name.uppercased()
+    }
+
+    func clearPhone() {
+        recipientPhone  = ""
+        selectedContact = nil
+        resolvedName    = nil
+    }
+
+    /// Giả lập lookup tên từ số tài khoản/điện thoại
+    func lookupName(for phone: String) {
+        guard phone.count >= 6 else { resolvedName = nil; return }
+        // Kiểm tra trong danh bạ trước
+        if let match = recentContacts.first(where: { $0.phone.replacingOccurrences(of: " ", with: "") == phone.replacingOccurrences(of: " ", with: "") }) {
+            resolvedName = match.name.uppercased()
+        } else {
+            // Mô phỏng lookup API — thực tế sẽ gọi network
+            resolvedName = "NGUYEN VAN AN"
+        }
+    }
 
     func formatted(_ raw: String) -> String {
         guard let v = Double(raw) else { return raw }
-        let f = NumberFormatter(); f.numberStyle = .decimal; f.groupingSeparator = "."
+        let f = NumberFormatter()
+        f.numberStyle      = .decimal
+        f.groupingSeparator = "."
         return f.string(from: NSNumber(value: Int(v))) ?? raw
     }
 }
@@ -327,8 +373,20 @@ class WalletViewModel: ObservableObject {
 class ProfileViewModel: ObservableObject {
     @Published var userName = "Vũ Cao Nguyên"
     @Published var phone    = "0941 338 447"
+    @Published var isVerified = true
+    @Published var transactionCount = 248
+    @Published var friendCount = 52
+    @Published var starPoints = 1850
+
     var initials: String {
-        let p = userName.split(separator: " ")
-        return "\(p.first?.prefix(1) ?? "")\(p.last?.prefix(1) ?? "")"
+        let parts = userName.split(separator: " ")
+        return "\(parts.first?.prefix(1) ?? "")\(parts.last?.prefix(1) ?? "")"
+    }
+
+    var starPointsFormatted: String {
+        let f = NumberFormatter()
+        f.numberStyle      = .decimal
+        f.groupingSeparator = "."
+        return f.string(from: NSNumber(value: starPoints)) ?? "\(starPoints)"
     }
 }
